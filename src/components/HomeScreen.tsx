@@ -68,10 +68,10 @@ const HomeScreen = () => {
       <div className="fixed top-0 left-0 w-full h-screen bg-cover bg-center -z-20" style={{ backgroundImage: "url('https://iili.io/Frvxln9.png')" }}></div>
       <div className="fixed top-0 left-0 w-full h-screen bg-white/20 backdrop-blur-xl -z-10"></div>
 
-      <div className="h-screen overflow-y-auto">
-        <div className="px-6 pt-8 pb-8">
+      <div className="h-screen overflow-y-hidden">
+        <div className="px-6 pt-6 pb-4">
           {/* Header */}
-          <header className="flex items-center justify-between mb-8">
+          <header className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <Avatar className="w-12 h-12 border-2 border-white/80 shadow-md">
                 <AvatarImage src={displayPicture} alt={displayName} />
@@ -116,10 +116,10 @@ const HomeScreen = () => {
           </div>
         </div>
 
-        <main className="px-6 py-6 pb-24">
+        <main className="px-6 py-4 pb-20">
           {/* AI Matching Section */}
           <section>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-bold text-slate-800 drop-shadow-md">งานที่ AI Matching มา</h2>
               <Button variant="link" className="text-slate-700 hover:text-black px-0">ดูทั้งหมด</Button>
             </div>
@@ -138,7 +138,7 @@ const HomeScreen = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-center items-center gap-2 mt-4">
+              <div className="flex justify-center items-center gap-2 mt-2">
                 {aiMatchedJobs.map((_, index) => (
                   <div
                     key={index}
