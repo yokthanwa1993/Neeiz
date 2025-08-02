@@ -30,11 +30,18 @@ WORKDIR /usr/src/app
 RUN npm install -g pnpm
 RUN apt-get update && apt-get install -y nginx curl && rm -rf /var/lib/apt/lists/*
 
-# Copy everything from builder
-COPY --from=builder /usr/src/app .
+# Copy only necessary files from builder
+COPY --from=builder /usr/src/app/apps/mobile/dist ./apps/mobile/dist
+COPY --from=builder /usr/src/app/apps/api/dist ./apps/api/dist
+COPY --from=builder /usr/src/app/apps/api/package.json ./apps/api/
+COPY --from=builder /usr/src/app/apps/web/.next ./apps/web/.next
+COPY --from=builder /usr/src/app/apps/web/package.json ./apps/web/
+COPY --from=builder /usr/src/app/apps/web/next.config.ts ./apps/web/
+COPY --from=builder /usr/src/app/apps/web/public ./apps/web/public
 
-# Install production dependencies
-RUN pnpm install --prod
+# Install only API and Web production dependencies
+RUN cd apps/api && npm install --only=production
+RUN cd apps/web && npm install --only=production
 
 # Setup nginx for mobile app (port 80)
 RUN rm /etc/nginx/sites-enabled/default
