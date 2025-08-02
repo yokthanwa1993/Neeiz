@@ -13,8 +13,8 @@ COPY apps/web/package.json ./apps/web/
 COPY packages/ ./packages/
 COPY tsconfig.base.json ./
 
-# Install all dependencies
-RUN pnpm install
+# Install all dependencies with memory optimization
+RUN pnpm install --no-optional --ignore-scripts
 
 # Copy all source code
 COPY . .
@@ -34,14 +34,16 @@ RUN apt-get update && apt-get install -y nginx curl && rm -rf /var/lib/apt/lists
 COPY --from=builder /usr/src/app/apps/mobile/dist ./apps/mobile/dist
 COPY --from=builder /usr/src/app/apps/api/dist ./apps/api/dist
 COPY --from=builder /usr/src/app/apps/api/package.json ./apps/api/
+
+# Copy Web files and install dependencies
 COPY --from=builder /usr/src/app/apps/web/.next ./apps/web/.next
 COPY --from=builder /usr/src/app/apps/web/package.json ./apps/web/
-COPY --from=builder /usr/src/app/apps/web/next.config.ts ./apps/web/
+COPY --from=builder /usr/src/app/apps/web/next.config.js ./apps/web/
 COPY --from=builder /usr/src/app/apps/web/public ./apps/web/public
 
-# Install only API and Web production dependencies
-RUN cd apps/api && npm install --only=production
-RUN cd apps/web && npm install --only=production
+# Install production dependencies without dev packages
+RUN cd apps/api && npm install --only=production --no-optional --no-audit --no-fund && npm cache clean --force
+RUN cd apps/web && npm install --only=production --no-optional --no-audit --no-fund && npm cache clean --force
 
 # Setup nginx for mobile app (port 80)
 RUN rm /etc/nginx/sites-enabled/default
@@ -52,12 +54,10 @@ RUN ln -s /etc/nginx/sites-available/mobile /etc/nginx/sites-enabled/mobile
 COPY start.sh /usr/src/app/start.sh
 RUN chmod +x /usr/src/app/start.sh
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-RUN chown -R appuser:appuser /usr/src/app
-RUN chown -R appuser:appuser /var/log/nginx
-RUN chown -R appuser:appuser /var/lib/nginx
-RUN chown -R appuser:appuser /var/run
+# Create non-root user with home directory
+RUN groupadd -r appuser && useradd -r -g appuser -m appuser
+RUN mkdir -p /home/appuser/.npm /var/lib/nginx/body /var/lib/nginx/proxy /var/lib/nginx/fastcgi /var/lib/nginx/uwsgi /var/lib/nginx/scgi
+RUN chown -R appuser:appuser /usr/src/app /home/appuser /var/log/nginx /var/lib/nginx /var/run /tmp
 
 USER appuser
 
