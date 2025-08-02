@@ -101,18 +101,9 @@ app.post('/api/auth/line', async (req, res) => {
           uid,
           displayName: userProfile.displayName,
           photoURL: userProfile.pictureUrl,
-          providerData: [{
-            uid: lineUser.sub,
-            displayName: userProfile.displayName,
-            photoURL: userProfile.pictureUrl,
-            providerId: 'line'
-          }]
         };
         if (userProfile.email) {
             createUserData.email = userProfile.email;
-            if(createUserData.providerData && createUserData.providerData[0]) {
-                (createUserData.providerData[0] as any).email = userProfile.email;
-            }
         }
         await admin.auth().createUser(createUserData);
       } else {
