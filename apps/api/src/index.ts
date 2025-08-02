@@ -36,7 +36,11 @@ try {
     console.warn('⚠️ Firebase Admin was already initialized.');
   }
 } catch (error) {
-  console.error('❌ [FATAL] Failed during Firebase initialization:', error.message);
+    if (error instanceof Error) {
+        console.error('❌ [FATAL] Failed during Firebase initialization:', error.message);
+    } else {
+        console.error('❌ [FATAL] Failed during Firebase initialization with an unknown error.');
+    }
   process.exit(1);
 }
 
@@ -91,9 +95,9 @@ app.post('/api/auth/line', async (req, res) => {
         displayName: userProfile.displayName,
         photoURL: userProfile.pictureUrl,
       });
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
-        const createUserData = {
+        const createUserData: admin.auth.CreateRequest = {
           uid,
           displayName: userProfile.displayName,
           photoURL: userProfile.pictureUrl,
@@ -106,7 +110,9 @@ app.post('/api/auth/line', async (req, res) => {
         };
         if (userProfile.email) {
             createUserData.email = userProfile.email;
-            if(createUserData.providerData[0]) createUserData.providerData[0].email = userProfile.email;
+            if(createUserData.providerData && createUserData.providerData[0]) {
+                (createUserData.providerData[0] as any).email = userProfile.email;
+            }
         }
         await admin.auth().createUser(createUserData);
       } else {
@@ -127,11 +133,16 @@ app.post('/api/auth/line', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ LINE authentication error:', error.message);
-    if (error.response) {
-      return res.status(401).json({ message: 'LINE token verification failed', details: error.response.data });
+    if (error instanceof Error) {
+        console.error('❌ LINE authentication error:', error.message);
+        if (axios.isAxiosError(error) && error.response) {
+            return res.status(401).json({ message: 'LINE token verification failed', details: error.response.data });
+        }
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    } else {
+        console.error('❌ LINE authentication error with an unknown error.');
+        res.status(500).json({ message: 'Internal server error' });
     }
-    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
 
