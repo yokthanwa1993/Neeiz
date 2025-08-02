@@ -16,6 +16,7 @@ import ChatHistoryPage from './pages/ChatHistoryPage';
 import NotificationsPage from './pages/NotificationsPage';
 import FullTimeJobs from './pages/FullTimeJobs';
 import LineCallback from './components/LineCallback';
+import BgPage from './pages/BgPage';
 
 const AppContent = () => {
   const { user, isLoading } = useAuth();
@@ -51,6 +52,7 @@ const AppContent = () => {
           <Route path="/settings" element={protectedRoute(<SettingsPage />)} />
           <Route path="/chat-history" element={protectedRoute(<ChatHistoryPage />)} />
           <Route path="/notifications" element={protectedRoute(<NotificationsPage />)} />
+          <Route path="/bg" element={<BgPage />} />
         </Routes>
       </div>
     </div>

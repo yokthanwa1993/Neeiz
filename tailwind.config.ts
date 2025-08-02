@@ -21,6 +21,7 @@ export default {
       fontFamily: {
         'sans': ['Sukhumvit Set', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         'sukhumvit': ['Sukhumvit Set', 'sans-serif'],
+        'bricolage': ['Bricolage Grotesque', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
