@@ -1,36 +1,48 @@
-# Stage 1: Install all dependencies and build
+# Build stage
 FROM node:20-slim AS builder
 WORKDIR /usr/src/app
+
+# Install pnpm
 RUN npm install -g pnpm
 
-# Copy all source files
-COPY . .
+# Copy package files for dependency installation
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY apps/api/package.json ./apps/api/
+COPY tsconfig.base.json ./
+COPY packages/ ./packages/
 
-# Install all dependencies needed for the build
-RUN pnpm install
+# Install all dependencies (including dev dependencies for building)
+RUN pnpm install --frozen-lockfile
 
-# Build the api package
+# Copy API source code
+COPY apps/api/src ./apps/api/src
+COPY apps/api/tsconfig.json ./apps/api/
+
+# Build the application
 RUN pnpm --filter @neeiz/api build
 
-# Use pnpm deploy to create a production-ready deployment folder
-RUN pnpm deploy --filter @neeiz/api --prod --legacy /prod
-
-# --- DEBUGGING STEP ---
-# List the contents of the deployment folder to verify
-RUN echo "--- Contents of /prod in builder stage ---" && ls -laR /prod
-
-
-# Stage 2: Production image
-FROM node:20-slim AS runner
+# Production stage
+FROM node:20-slim AS production
 WORKDIR /usr/src/app
-ENV NODE_ENV=production
 
-# Copy the production-ready files from the builder stage
-COPY --from=builder /prod .
+# Copy package.json and install only production dependencies
+COPY apps/api/package.json ./
+RUN npm install --only=production && npm cache clean --force
 
-# --- DEBUGGING STEP ---
-# List the contents of the final app directory to verify
-RUN echo "--- Contents of /usr/src/app in runner stage ---" && ls -laR
+# Copy built application from builder stage
+COPY --from=builder /usr/src/app/apps/api/dist ./dist
 
-# Run the app
-ENTRYPOINT ["node", "dist/index.js"]
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN chown -R appuser:appuser /usr/src/app
+USER appuser
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# Start the application
+CMD ["node", "dist/index.js"]
