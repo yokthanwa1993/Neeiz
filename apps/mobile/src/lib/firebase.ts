@@ -1,7 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getAnalytics } from 'firebase/analytics';
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getAuth, setPersistence, browserLocalPersistence, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
+import { getAnalytics, Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBvRiVMDAeqAKiylft59YPwc90oFz-WCXo",
@@ -32,10 +32,10 @@ if (missingKeys.length > 0) {
   console.log('   - VITE_FIREBASE_MEASUREMENT_ID');
 }
 
-let app;
-let auth;
-let db;
-let analytics;
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+let analytics: Analytics | undefined;
 
 try {
   app = initializeApp(firebaseConfig);
