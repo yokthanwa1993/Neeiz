@@ -38,43 +38,11 @@ RUN pnpm install --prod
 
 # Setup nginx for mobile app (port 80)
 RUN rm /etc/nginx/sites-enabled/default
-COPY <<EOF /etc/nginx/sites-available/mobile
-server {
-    listen 80;
-    server_name localhost;
-    root /usr/src/app/apps/mobile/dist;
-    index index.html;
-    
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
-    
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-}
-EOF
+COPY nginx-mobile.conf /etc/nginx/sites-available/mobile
 RUN ln -s /etc/nginx/sites-available/mobile /etc/nginx/sites-enabled/mobile
 
-# Create startup script
-COPY <<EOF /usr/src/app/start.sh
-#!/bin/bash
-set -e
-
-# Start nginx in background
-nginx &
-
-# Start API in background
-cd /usr/src/app/apps/api && node dist/index.js &
-
-# Start Next.js web app in background  
-cd /usr/src/app/apps/web && npm start &
-
-# Wait for all background processes
-wait
-EOF
-
+# Copy startup script
+COPY start.sh /usr/src/app/start.sh
 RUN chmod +x /usr/src/app/start.sh
 
 # Create non-root user
