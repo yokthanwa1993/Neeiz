@@ -37,6 +37,7 @@ export const LiffProvider: React.FC<LiffProviderProps> = ({ children }) => {
     return window.liff && liffInitialized;
   });
   const [isLiffLoading, setIsLiffLoading] = useState(() => {
+    if (import.meta.env.DEV) return false;
     // Check if we have user data already
     const existingUser = localStorage.getItem('auth_user');
     const authCompleted = localStorage.getItem('auth_completed_at');
@@ -53,6 +54,13 @@ export const LiffProvider: React.FC<LiffProviderProps> = ({ children }) => {
   const { setUser, user } = useAuth();
 
   useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log('🔧 DEV MODE: Skipping LIFF initialization.');
+      setIsLiffReady(true);
+      setIsLiffLoading(false);
+      return;
+    }
+
     // Check if user data already exists in localStorage first
     const existingUser = localStorage.getItem('auth_user');
     const authCompletedAt = localStorage.getItem('auth_completed_at');

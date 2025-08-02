@@ -31,8 +31,24 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const getMockUser = (): User | null => {
+  if (import.meta.env.DEV) {
+    console.log('🔧 DEV MODE: Using mock user.');
+    return {
+      id: 'dev_user_01',
+      name: 'นักพัฒนา',
+      email: 'dev@example.com',
+      picture: `https://i.pravatar.cc/150?u=dev_user_01`,
+    };
+  }
+  return null;
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
+    const mockUser = getMockUser();
+    if (mockUser) return mockUser;
+
     // Load user from localStorage on initialization
     try {
       const savedUser = localStorage.getItem('auth_user');
@@ -45,6 +61,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(() => {
+    if (import.meta.env.DEV) return false;
+
     // If we have cached user data, don't show loading
     const cachedUser = localStorage.getItem('auth_user');
     const authCompleted = localStorage.getItem('auth_completed_at');
@@ -54,6 +72,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
+    if (import.meta.env.DEV) {
+      return; // Skip all auth logic in dev mode
+    }
+
     console.log('🚀 AuthContext initialized, user state:', user);
     
     // Check if Firebase is properly initialized
@@ -186,6 +208,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [user]);
 
   const logout = async () => {
+    if (import.meta.env.DEV) {
+      console.log('🔧 DEV MODE: Logging out mock user and reloading.');
+      setUser(null);
+      localStorage.clear();
+      window.location.reload();
+      return;
+    }
+
     try {
       console.log('🚪 Starting logout process...');
       
