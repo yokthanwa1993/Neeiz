@@ -34,6 +34,7 @@ dist-ssr
 !package-lock.json
 !pnpm-lock.yaml
 !tsconfig.json
+!tsconfig.base.json
 !tsconfig.app.json
 !tsconfig.node.json
 !tailwind.config.ts
