@@ -12,8 +12,8 @@ const NotificationsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <PageLayout backgroundClass="bg-gray-50">
-      <header className="sticky top-0 bg-white z-10 p-4 border-b">
+    <PageLayout>
+      <header className="sticky top-0 bg-white/80 backdrop-blur-sm z-10 p-4 border-b">
         <div className="flex items-center gap-4">
           <Button onClick={() => navigate(-1)} size="icon" variant="ghost" className="rounded-full text-gray-800">
             <ArrowLeft size={24} />
@@ -24,7 +24,7 @@ const NotificationsPage = () => {
 
       <main className="flex-grow overflow-y-auto">
         <Tabs defaultValue="selected-jobs" className="w-full">
-          <div className="p-4 sticky top-0 bg-gray-50 z-10">
+          <div className="p-4 sticky top-0 bg-white/80 backdrop-blur-sm z-10">
             <TabsList className="grid w-full grid-cols-2 gap-2 h-auto bg-gray-200 p-1 rounded-xl">
               <TabsTrigger value="selected-jobs" className="py-2 text-gray-600 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm font-semibold">
                 งานที่ได้รับเลือก ({selectedJobsNotifications.length})
