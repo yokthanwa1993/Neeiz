@@ -12,7 +12,7 @@ COPY tsconfig.base.json ./
 COPY packages/ ./packages/
 
 # Install all dependencies (including dev dependencies for building)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copy API source code
 COPY apps/api/src ./apps/api/src
