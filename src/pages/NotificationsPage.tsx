@@ -1,205 +1,109 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Home, Search, Calendar, Wallet, User, Check, Coins, Star } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Star, Calendar, MapPin, Clock, X, Check, BellRing, Wallet } from 'lucide-react';
+import { selectedJobsNotifications, generalNotifications } from '@/data/notifications';
+import { cn } from '@/lib/utils';
+import PageLayout from '@/components/PageLayout';
 
 const NotificationsPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [selectedTab, setSelectedTab] = useState('received');
-
-  const navItems = [
-    { path: '/', label: 'หน้าแรก', icon: Home },
-    { path: '/jobs', label: 'ค้นหางาน', icon: Search },
-    { path: '/my-shifts', label: 'งานของฉัน', icon: Calendar },
-    { path: '/wallet', label: 'กระเป๋าเงิน', icon: Wallet },
-    { path: '/profile', label: 'โปรไฟล์', icon: User },
-  ];
-
-  const notifications = [
-    {
-      id: 1,
-      title: 'พนักงานครัวร้านอาหารไทย',
-      description: 'ร้านอาหารไทยแก่',
-      rating: 4.8,
-      price: '฿180/ชม.',
-      date: '28 ม.ค. 2025 08:00 - 17:00',
-      location: 'สยามพารากอน',
-      message: 'เรายินดีที่จะให้บริการคุณ อยากให้มาทำงานกับเรา',
-      status: 'received',
-      actionButtons: [
-        { text: 'ปฏิเสธ', color: 'red' },
-        { text: 'รับงาน', color: 'yellow' },
-      ],
-    },
-    // Add more notifications as needed
-  ];
-
-  // General notifications (from screenshot)
-  const generalNotifications = [
-    {
-      id: 1,
-      icon: <Check className="text-green-500 w-6 h-6" />,
-      title: 'งานได้รับการยืนยันแล้ว',
-      description: 'งานพนักงานร้านขายของ ได้รับการยืนยันแล้ว เริ่มงานวันพรุ่งนี้',
-      daysAgo: 183,
-      rightDot: <span className="w-3 h-3 rounded-full bg-blue-400 inline-block"></span>,
-      cardClass: "border-l-4 border-blue-300"
-    },
-    {
-      id: 2,
-      icon: <Coins className="text-yellow-500 w-6 h-6" />,
-      title: 'ได้รับเงินค่าจ้าง',
-      description: 'ได้รับเงินค่าจ้าง ฿720 จากงานพนักงานร้านขายของ',
-      daysAgo: 184,
-      rightDot: <span className="w-3 h-3 rounded-full bg-blue-400 inline-block"></span>,
-      cardClass: "border-l-4 border-blue-300"
-    },
-    {
-      id: 3,
-      icon: <Star className="text-yellow-400 w-6 h-6" />,
-      title: 'ได้รับคะแนนจากนายจ้าง',
-      description: 'คุณได้รับคะแนน 5 ดาว จากงานพนักงานห้องครัว',
-      daysAgo: 184,
-      rightDot: null,
-      cardClass: "border-l-4 border-gray-200"
-    }
-  ];
-
-  const filteredNotifications = notifications.filter(
-    (notification) => notification.status === selectedTab
-  );
 
   return (
-    <div className="min-h-screen pb-20">
-      
-      
-      <div className="px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">แจ้งเตือน</h1>
+    <PageLayout backgroundClass="bg-gray-50">
+      <header className="sticky top-0 bg-white z-10 p-4 border-b">
+        <div className="flex items-center gap-4">
+          <Button onClick={() => navigate(-1)} size="icon" variant="ghost" className="rounded-full text-gray-800">
+            <ArrowLeft size={24} />
+          </Button>
+          <h1 className="text-xl font-bold text-gray-900">แจ้งเตือน</h1>
+        </div>
+      </header>
+
+      <main className="flex-grow overflow-y-auto">
+        <Tabs defaultValue="selected-jobs" className="w-full">
+          <div className="p-4 sticky top-0 bg-gray-50 z-10">
+            <TabsList className="grid w-full grid-cols-2 gap-2 h-auto bg-gray-200 p-1 rounded-xl">
+              <TabsTrigger value="selected-jobs" className="py-2 text-gray-600 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm font-semibold">
+                งานที่ได้รับเลือก ({selectedJobsNotifications.length})
+              </TabsTrigger>
+              <TabsTrigger value="general" className="py-2 text-gray-600 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm font-semibold">
+                การแจ้งเตือน ({generalNotifications.length})
+              </TabsTrigger>
+            </TabsList>
           </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex space-x-4 mb-6">
-          <button
-            onClick={() => setSelectedTab('received')}
-            className={`px-4 py-2 rounded-lg ${
-              selectedTab === 'received' ? 'bg-yellow-200' : 'bg-gray-200'
-            }`}
-          >
-            งานที่ได้รับเลือก ({notifications.filter((n) => n.status === 'received').length})
-          </button>
-          <button
-            onClick={() => setSelectedTab('general')}
-            className={`px-4 py-2 rounded-lg ${
-              selectedTab === 'general' ? 'bg-yellow-200' : 'bg-gray-200'
-            }`}
-          >
-            การแจ้งเตือน ({generalNotifications.length})
-          </button>
-        </div>
-
-        {/* Notifications List */}
-        <div className="space-y-4">
-          {selectedTab === 'received' && filteredNotifications.map((notification) => (
-            <div key={notification.id} className="bg-white rounded-lg shadow-sm p-4">
-              <div className="flex justify-between items-center mb-4">
-                <div>
-                  <h2 className="text-lg font-bold">{notification.title}</h2>
-                  <p className="text-gray-600">{notification.description}</p>
-                  <div className="flex items-center">
-                    <span className="text-yellow-500">⭐ {notification.rating}</span>
+          
+          <TabsContent value="selected-jobs" className="px-4 space-y-4 pb-4">
+            {selectedJobsNotifications.map((job) => (
+              <Card key={job.id} className="rounded-2xl shadow-md overflow-hidden border bg-white">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-lg text-gray-800">{job.jobTitle}</h3>
+                      <p className="text-gray-600">{job.companyName}</p>
+                    </div>
+                    <p className="font-bold text-yellow-500 text-lg">฿{job.rate}/ชม.</p>
                   </div>
-                </div>
-                <div>
-                  <p className="text-yellow-600 font-bold">{notification.price}</p>
-                </div>
-              </div>
-              <div className="flex space-x-4 mb-4">
-                <div>
-                  <p className="text-gray-600">
-                    <span className="font-bold">วันที่:</span> {notification.date}
-                  </p>
-                  <p className="text-gray-600">
-                    <span className="font-bold">สถานที่:</span> {notification.location}
-                  </p>
-                </div>
-              </div>
-              <div className="bg-blue-100 p-2 rounded-lg">
-                <p className="text-gray-600">{notification.message}</p>
-              </div>
-              <div className="flex justify-end space-x-2 mt-4">
-                {notification.actionButtons.map((button) => (
-                  <button
-                    key={button.text}
-                    className={`px-4 py-2 rounded-lg bg-${button.color}-200 text-${button.color}-800`}
-                  >
-                    {button.text}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
+                  <div className="flex items-center gap-2 text-sm text-gray-500 my-3">
+                    <Star className="text-yellow-400" fill="currentColor" size={16} />
+                    <span>{job.rating}</span>
+                  </div>
+                  <div className="bg-gray-100 rounded-lg p-3 space-y-2 text-gray-800">
+                    <div className="flex items-center gap-3">
+                      <Calendar size={18} />
+                      <span>{job.date} {job.time}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <MapPin size={18} />
+                      <span>{job.location}</span>
+                    </div>
+                  </div>
+                  <div className="bg-blue-100 border-l-4 border-blue-400 text-blue-800 p-3 my-4 rounded-r-lg">
+                    <p>"{job.message}"</p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Clock size={16} />
+                      <span>หมดเขตใน {job.expiresInDays} วัน</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full px-4">
+                        <X size={16} className="mr-1" />
+                        ปฏิเสธ
+                      </Button>
+                      <Button className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold rounded-full px-4">
+                        <Check size={16} className="mr-1" />
+                        รับงาน
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
 
-          {selectedTab === 'general' && generalNotifications.map((item) => (
-            <div
-              key={item.id}
-              className={`bg-white rounded-xl shadow-sm p-4 flex items-start gap-3 relative ${item.cardClass}`}
-              style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)' }}
-            >
-              <div className="flex-shrink-0 mt-1">{item.icon}</div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-base font-bold text-gray-900">{item.title}</h2>
-                  {item.rightDot}
+          <TabsContent value="general" className="p-0">
+            <div className="divide-y divide-gray-200">
+              {generalNotifications.map((notif) => (
+                <div key={notif.id} className={cn("flex items-start gap-4 p-4", !notif.read && "bg-yellow-50")}>
+                  <div className={cn("mt-1 p-2 rounded-full", !notif.read ? "bg-yellow-100" : "bg-gray-100")}>
+                    {notif.title.includes("ชำระเงิน") ? <Wallet size={20} className="text-yellow-600" /> : <BellRing size={20} className="text-gray-500" />}
+                  </div>
+                  <div className="flex-grow">
+                    <p className="font-semibold text-gray-800">{notif.title}</p>
+                    <p className="text-sm text-gray-600">{notif.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
+                  </div>
+                  {!notif.read && <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full mt-2 self-center"></div>}
                 </div>
-                <p className="text-gray-600 text-sm mt-1">{item.description}</p>
-                <div className="text-xs text-gray-400 mt-2">{item.daysAgo} วัน</div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom Navigation - แสดงเฉพาะในหน้านี้ */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="grid grid-cols-5 py-2">
-          {navItems.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = location.pathname === item.path;
-            
-            return (
-              <div 
-                key={item.path}
-                className={`flex flex-col items-center py-2 transition-all duration-300 cursor-pointer ${
-                  isActive 
-                    ? "text-[#f5c518] transform scale-105" 
-                    : "text-gray-400 hover:text-[#f5c518]"
-                }`}
-                onClick={() => navigate(item.path)}
-              >
-                <IconComponent 
-                  size={20} 
-                  className={`mb-1 transition-transform duration-200 ${
-                    isActive 
-                      ? 'fill-current scale-110' 
-                      : 'hover:scale-105'
-                  }`} 
-                />
-                <span className={`text-xs transition-all duration-200 ${
-                  isActive ? 'font-semibold scale-105' : ''
-                }`}>
-                  {item.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </PageLayout>
   );
 };
 
