@@ -15,6 +15,10 @@ RUN pnpm --filter @neeiz/api build
 # Use pnpm deploy to create a production-ready deployment folder
 RUN pnpm deploy --filter @neeiz/api --prod --legacy /prod
 
+# --- DEBUGGING STEP ---
+# List the contents of the deployment folder to verify
+RUN echo "--- Contents of /prod in builder stage ---" && ls -laR /prod
+
 
 # Stage 2: Production image
 FROM node:20-slim AS runner
@@ -23,6 +27,10 @@ ENV NODE_ENV=production
 
 # Copy the production-ready files from the builder stage
 COPY --from=builder /prod .
+
+# --- DEBUGGING STEP ---
+# List the contents of the final app directory to verify
+RUN echo "--- Contents of /usr/src/app in runner stage ---" && ls -laR
 
 # Run the app
 ENTRYPOINT ["node", "dist/index.js"]
