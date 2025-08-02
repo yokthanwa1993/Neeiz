@@ -25,4 +25,4 @@ ENV NODE_ENV=production
 COPY --from=builder /prod .
 
 # Run the app
-ENTRYPOINT ["node", "apps/api/dist/index.js"]
+ENTRYPOINT ["node", "dist/index.js"]
