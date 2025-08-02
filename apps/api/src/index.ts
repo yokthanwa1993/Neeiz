@@ -64,6 +64,26 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// System status endpoint
+app.get('/api/status', (req, res) => {
+  res.json({
+    services: {
+      api: {
+        status: 'online',
+        port: PORT,
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
+      },
+      firebase: {
+        status: admin.apps.length > 0 ? 'connected' : 'disconnected',
+        apps: admin.apps.length
+      }
+    },
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
 // LINE Authentication endpoint
 app.post('/api/auth/line', async (req, res) => {
   try {
