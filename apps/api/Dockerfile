@@ -13,7 +13,7 @@ RUN pnpm install
 RUN pnpm --filter @neeiz/api build
 
 # Use pnpm deploy to create a production-ready deployment folder
-RUN pnpm deploy --filter @neeiz/api --prod /prod
+RUN pnpm deploy --filter @neeiz/api --prod --legacy /prod
 
 
 # Stage 2: Production image
