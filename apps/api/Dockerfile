@@ -1,4 +1,4 @@
-# Stage 1: Install dependencies
+# Stage 1: Install dependencies including devDependencies
 FROM node:20-slim AS deps
 WORKDIR /usr/src/app
 
@@ -10,8 +10,8 @@ COPY package.json pnpm-lock.yaml ./
 COPY packages/lib/package.json ./packages/lib/
 COPY apps/api/package.json ./apps/api/
 
-# Install ONLY production dependencies using pnpm's filtering capabilities
-RUN npm install -g pnpm && pnpm install --prod --filter @neeiz/api...
+# Install all dependencies using pnpm's filtering capabilities
+RUN npm install -g pnpm && pnpm install --filter @neeiz/api...
 
 # Stage 2: Build the application from source
 FROM node:20-slim AS builder
@@ -27,9 +27,8 @@ COPY packages/lib ./packages/lib
 COPY apps/api ./apps/api
 COPY tsconfig.base.json ./
 
-# We don't need to build anything for a pure JS project, 
-# but if it were TypeScript, we would run a build command here.
-# For now, this stage just ensures we have a clean workspace with only necessary files.
+# Build the TypeScript project
+RUN pnpm --filter @neeiz/api build
 
 # Stage 3: Production image
 FROM node:20-slim AS runner
@@ -37,10 +36,11 @@ WORKDIR /usr/src/app
 
 ENV NODE_ENV=production
 
-# Copy the built application and node_modules from the 'builder' stage
+# Copy the built application and production node_modules from the 'builder' stage
 COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/apps/api ./apps/api
+COPY --from=builder /usr/src/app/apps/api/dist ./apps/api/dist
+COPY --from=builder /usr/src/app/apps/api/package.json ./apps/api/package.json
 COPY --from=builder /usr/src/app/packages/lib ./packages/lib
 
-# The command to run the API server
-CMD ["node", "apps/api/src/index.ts"]
+# The command to run the API server from the built JS file
+CMD ["node", "apps/api/dist/index.js"]
