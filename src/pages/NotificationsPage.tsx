@@ -12,19 +12,18 @@ const NotificationsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <PageLayout backgroundClass="bg-gray-50">
-      <header className="sticky top-0 bg-white z-10 p-4 border-b">
-        <div className="flex items-center gap-4">
-          <Button onClick={() => navigate(-1)} size="icon" variant="ghost" className="rounded-full text-gray-800">
-            <ArrowLeft size={24} />
-          </Button>
-          <h1 className="text-xl font-bold text-gray-900">แจ้งเตือน</h1>
-        </div>
-      </header>
-
-      <main className="flex-grow overflow-y-auto">
-        <Tabs defaultValue="selected-jobs" className="w-full">
-          <div className="p-4 sticky top-0 bg-gray-50 z-10">
+    <PageLayout backgroundClass="bg-transparent">
+      <Tabs defaultValue="selected-jobs" className="w-full flex flex-col h-full">
+        <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 border-b">
+          <header className="p-4">
+            <div className="flex items-center gap-4">
+              <Button onClick={() => navigate(-1)} size="icon" variant="ghost" className="rounded-full text-gray-800">
+                <ArrowLeft size={24} />
+              </Button>
+              <h1 className="text-xl font-bold text-gray-900">แจ้งเตือน</h1>
+            </div>
+          </header>
+          <div className="px-4 pb-4">
             <TabsList className="grid w-full grid-cols-2 gap-2 h-auto bg-gray-200 p-1 rounded-xl">
               <TabsTrigger value="selected-jobs" className="py-2 text-gray-600 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm font-semibold">
                 งานที่ได้รับเลือก ({selectedJobsNotifications.length})
@@ -34,8 +33,10 @@ const NotificationsPage = () => {
               </TabsTrigger>
             </TabsList>
           </div>
-          
-          <TabsContent value="selected-jobs" className="px-4 space-y-4 pb-4">
+        </div>
+
+        <div className="flex-grow overflow-y-auto">
+          <TabsContent value="selected-jobs" className="px-4 space-y-4 pb-4 mt-0">
             {selectedJobsNotifications.map((job) => (
               <Card key={job.id} className="rounded-2xl shadow-md overflow-hidden border bg-white">
                 <CardContent className="p-4">
@@ -84,7 +85,7 @@ const NotificationsPage = () => {
             ))}
           </TabsContent>
 
-          <TabsContent value="general" className="p-0">
+          <TabsContent value="general" className="p-0 mt-0">
             <div className="divide-y divide-gray-200">
               {generalNotifications.map((notif) => (
                 <div key={notif.id} className={cn("flex items-start gap-4 p-4", !notif.read && "bg-yellow-50")}>
@@ -101,8 +102,8 @@ const NotificationsPage = () => {
               ))}
             </div>
           </TabsContent>
-        </Tabs>
-      </main>
+        </div>
+      </Tabs>
     </PageLayout>
   );
 };
