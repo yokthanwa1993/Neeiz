@@ -33,9 +33,10 @@ WORKDIR /usr/src/app
 
 ENV NODE_ENV=production
 
+COPY package.json pnpm-lock.yaml ./
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/apps/api/dist ./apps/api/dist
 COPY --from=builder /usr/src/app/apps/api/package.json ./apps/api/package.json
 COPY --from=builder /usr/src/app/packages/lib ./packages/lib
 
-CMD ["node", "apps/api/dist/index.js"]
+ENTRYPOINT ["node", "apps/api/dist/index.js"]
