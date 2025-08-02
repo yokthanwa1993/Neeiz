@@ -7,8 +7,10 @@ RUN npm install -g pnpm
 
 # Copy package files
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY apps/*/package.json ./apps/*/
-COPY packages/*/package.json ./packages/*/
+COPY apps/api/package.json ./apps/api/
+COPY apps/mobile/package.json ./apps/mobile/
+COPY apps/web/package.json ./apps/web/
+COPY packages/ ./packages/
 COPY tsconfig.base.json ./
 
 # Install all dependencies
