@@ -2,15 +2,11 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { auth } from '@/lib/firebase';
 import { signOut, onAuthStateChanged, User as FirebaseUser, signInWithCustomToken } from 'firebase/auth';
 
-// 1. กำหนดประเภทของ Role
-export type UserRole = 'job_seeker' | 'employer';
-
 interface User {
   id: string;
   name: string;
   picture?: string;
   email?: string;
-  role: UserRole; // 2. เพิ่ม role เข้าไปใน User interface
 }
 
 interface AuthContextType {
@@ -43,7 +39,6 @@ const getMockUser = (): User | null => {
       name: 'นักพัฒนา',
       email: 'dev@example.com',
       picture: `https://i.pravatar.cc/150?u=dev_user_01`,
-      role: 'job_seeker', // 3. เพิ่ม role ให้กับ mock user สำหรับทดสอบ
     };
   }
   return null;
@@ -54,6 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const mockUser = getMockUser();
     if (mockUser) return mockUser;
 
+    // Load user from localStorage on initialization
     try {
       const savedUser = localStorage.getItem('auth_user');
       console.log('🔍 Loading user from localStorage:', savedUser);
@@ -67,6 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(() => {
     if (import.meta.env.DEV) return false;
 
+    // If we have cached user data, don't show loading
     const cachedUser = localStorage.getItem('auth_user');
     const authCompleted = localStorage.getItem('auth_completed_at');
     const hasUserData = cachedUser && authCompleted;
@@ -76,33 +73,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (import.meta.env.DEV) {
-      return; 
+      return; // Skip all auth logic in dev mode
     }
 
     console.log('🚀 AuthContext initialized, user state:', user);
     
+    // Check if Firebase is properly initialized
     if (!auth) {
       console.error('Firebase auth is not initialized');
       setIsLoading(false);
       return;
     }
 
+    // Function to load user from localStorage and Firebase
     const loadUserData = async () => {
       try {
         console.log('🔄 Starting to load user data...');
         
+        // Check if we have cached user data first (fastest)
         const cachedUser = localStorage.getItem('auth_user');
         const authCompleted = localStorage.getItem('auth_completed_at');
         
         if (cachedUser && authCompleted) {
           console.log('✅ Found cached user data, using immediately');
           try {
-            const userData = JSON.parse(cachedUser) as User; // Cast to User
-            // 4. ตรวจสอบว่ามี role หรือไม่ ถ้าไม่มีอาจจะต้องให้ผู้ใช้เลือก
-            if (!userData.role) {
-                console.warn('⚠️ User data from cache is missing a role. User might need to select one.');
-                // คุณอาจจะ redirect ผู้ใช้ไปหน้าเลือก role ตรงนี้
-            }
+            const userData = JSON.parse(cachedUser);
             if (!user) {
               setUser(userData);
               console.log('👤 User restored from cache:', userData);
@@ -116,6 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
         
+        // Check if we have stored Firebase custom token
         const storedCustomToken = localStorage.getItem('firebase_custom_token');
         const storedUserData = localStorage.getItem('firebase_user_data');
         
@@ -126,21 +122,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log('🔄 Found stored Firebase token, signing in...');
           
           try {
+            // Sign in to Firebase with stored custom token
             await signInWithCustomToken(auth, storedCustomToken);
             console.log('✅ Signed in to Firebase with stored token');
             
+            // Parse stored user data
             const userData = JSON.parse(storedUserData);
             console.log('📋 Parsed user data:', userData);
             
-            // 5. ดึง role มาจากข้อมูลที่ได้จาก backend
-            //    สมมติว่า backend ส่ง role กลับมาใน object userData
             const userObj: User = {
               id: userData.uid,
               name: userData.displayName || 'ผู้ใช้ LINE',
               email: userData.email || '',
-              picture: userData.pictureUrl || undefined,
-              role: userData.role || 'job_seeker' // <-- **สำคัญ** ดึง role มาตรงนี้
-                                                    // ควรมีค่า default หรือบังคับให้ผู้ใช้เลือก
+              picture: userData.pictureUrl || undefined
             };
             
             console.log('👤 Setting user object:', userObj);
@@ -164,8 +158,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
+    // Load user data first
     loadUserData();
 
+    // Listen to Firebase auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         console.log('🔥 Firebase auth state changed:', firebaseUser ? 'logged in' : 'logged out');
@@ -174,19 +170,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (firebaseUser) {
           setFirebaseUser(firebaseUser);
           
+          // Only update user data if we don't already have it from localStorage
           if (!user) {
             console.log('🔄 Setting user data from Firebase user...');
-            
-            // 6. เมื่อดึงข้อมูลจาก Firebase ควรจะต้องดึง role จากฐานข้อมูลของคุณ (เช่น Firestore)
-            //    ในส่วนนี้ผมจะ hardcode ไว้ก่อนเพื่อเป็นตัวอย่าง
-            //    const userRole = await fetchUserRoleFromDatabase(firebaseUser.uid);
-            
             const userData: User = {
               id: firebaseUser.uid,
               name: firebaseUser.displayName || 'ผู้ใช้',
               email: firebaseUser.email || '',
-              picture: firebaseUser.photoURL || undefined,
-              role: 'job_seeker' // <-- **สำคัญ** ปกติต้องดึงค่านี้จาก Database ของคุณ
+              picture: firebaseUser.photoURL || undefined
             };
             
             console.log('👤 User data from Firebase:', userData);
@@ -197,6 +188,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.log('ℹ️ User data already exists, not updating from Firebase');
           }
         } else {
+          // If firebaseUser is null, it means the user is logged out from Firebase.
+          // We should clear the local user data as well to keep the state consistent.
           setFirebaseUser(null);
           setUser(null);
           localStorage.removeItem('auth_user');
@@ -233,6 +226,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setFirebaseUser(null);
       
+      // Clear all stored data
       localStorage.removeItem('auth_user');
       localStorage.removeItem('firebase_custom_token');
       localStorage.removeItem('firebase_user_data');

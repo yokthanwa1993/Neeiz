@@ -12,8 +12,8 @@ const NotificationsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <PageLayout>
-      <header className="sticky top-0 bg-white/80 backdrop-blur-sm z-10 p-4 border-b border-black/10">
+    <PageLayout backgroundClass="bg-gray-50">
+      <header className="sticky top-0 bg-white z-10 p-4 border-b">
         <div className="flex items-center gap-4">
           <Button onClick={() => navigate(-1)} size="icon" variant="ghost" className="rounded-full text-gray-800">
             <ArrowLeft size={24} />
@@ -24,12 +24,12 @@ const NotificationsPage = () => {
 
       <main className="flex-grow overflow-y-auto">
         <Tabs defaultValue="selected-jobs" className="w-full">
-          <div className="p-4 sticky top-0 bg-transparent">
-            <TabsList className="grid w-full grid-cols-2 gap-2 h-auto bg-black/10 p-1 rounded-xl backdrop-blur-sm">
-              <TabsTrigger value="selected-jobs" className="py-2 text-gray-700 rounded-lg data-[state=active]:bg-white/80 data-[state=active]:text-gray-800 data-[state=active]:shadow-sm font-semibold">
+          <div className="p-4 sticky top-0 bg-gray-50 z-10">
+            <TabsList className="grid w-full grid-cols-2 gap-2 h-auto bg-gray-200 p-1 rounded-xl">
+              <TabsTrigger value="selected-jobs" className="py-2 text-gray-600 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm font-semibold">
                 งานที่ได้รับเลือก ({selectedJobsNotifications.length})
               </TabsTrigger>
-              <TabsTrigger value="general" className="py-2 text-gray-700 rounded-lg data-[state=active]:bg-white/80 data-[state=active]:text-gray-800 data-[state=active]:shadow-sm font-semibold">
+              <TabsTrigger value="general" className="py-2 text-gray-600 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm font-semibold">
                 การแจ้งเตือน ({generalNotifications.length})
               </TabsTrigger>
             </TabsList>
@@ -37,7 +37,7 @@ const NotificationsPage = () => {
           
           <TabsContent value="selected-jobs" className="px-4 space-y-4 pb-4">
             {selectedJobsNotifications.map((job) => (
-              <Card key={job.id} className="rounded-2xl shadow-md overflow-hidden border-none bg-white/70 backdrop-blur-md">
+              <Card key={job.id} className="rounded-2xl shadow-md overflow-hidden border bg-white">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
                     <div>
@@ -50,7 +50,7 @@ const NotificationsPage = () => {
                     <Star className="text-yellow-400" fill="currentColor" size={16} />
                     <span>{job.rating}</span>
                   </div>
-                  <div className="bg-black/5 rounded-lg p-3 space-y-2 text-gray-800">
+                  <div className="bg-gray-100 rounded-lg p-3 space-y-2 text-gray-800">
                     <div className="flex items-center gap-3">
                       <Calendar size={18} />
                       <span>{job.date} {job.time}</span>
@@ -60,7 +60,7 @@ const NotificationsPage = () => {
                       <span>{job.location}</span>
                     </div>
                   </div>
-                  <div className="bg-blue-500/10 border-l-4 border-blue-400 text-blue-800 p-3 my-4 rounded-r-lg">
+                  <div className="bg-blue-100 border-l-4 border-blue-400 text-blue-800 p-3 my-4 rounded-r-lg">
                     <p>"{job.message}"</p>
                   </div>
                   <div className="flex justify-between items-center">
@@ -69,7 +69,7 @@ const NotificationsPage = () => {
                       <span>หมดเขตใน {job.expiresInDays} วัน</span>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" className="border-red-500 text-red-500 bg-white/50 hover:bg-red-50 hover:text-red-600 rounded-full px-4">
+                      <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full px-4">
                         <X size={16} className="mr-1" />
                         ปฏิเสธ
                       </Button>
@@ -85,10 +85,10 @@ const NotificationsPage = () => {
           </TabsContent>
 
           <TabsContent value="general" className="p-0">
-            <div className="divide-y divide-black/10">
+            <div className="divide-y divide-gray-200">
               {generalNotifications.map((notif) => (
-                <div key={notif.id} className={cn("flex items-start gap-4 p-4 backdrop-blur-sm", !notif.read && "bg-yellow-400/20")}>
-                  <div className={cn("mt-1 p-2 rounded-full", !notif.read ? "bg-yellow-100" : "bg-black/10")}>
+                <div key={notif.id} className={cn("flex items-start gap-4 p-4", !notif.read && "bg-yellow-50")}>
+                  <div className={cn("mt-1 p-2 rounded-full", !notif.read ? "bg-yellow-100" : "bg-gray-100")}>
                     {notif.title.includes("ชำระเงิน") ? <Wallet size={20} className="text-yellow-600" /> : <BellRing size={20} className="text-gray-500" />}
                   </div>
                   <div className="flex-grow">

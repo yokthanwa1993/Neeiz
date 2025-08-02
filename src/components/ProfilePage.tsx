@@ -90,7 +90,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <PageLayout>
+    <PageLayout backgroundClass="bg-gradient-to-b from-yellow-100 to-gray-50">
       <header className="relative z-20">
         <div className="relative flex flex-col items-center pt-8">
           <div className="relative">

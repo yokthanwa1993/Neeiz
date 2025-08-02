@@ -83,7 +83,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    @apply bg-transparent;
+    @apply bg-gradient-to-b from-white to-yellow-200;
   }
   
   #root {
