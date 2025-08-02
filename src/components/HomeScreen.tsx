@@ -65,7 +65,7 @@ const HomeScreen = () => {
   return (
     <>
       {/* Background from BgPage */}
-      <div className="fixed top-0 left-0 w-full h-screen bg-cover bg-center -z-20" style={{ backgroundImage: "url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/44dea03b-7cbb-41b6-934f-6482f1fdf2e3_3840w.jpg')" }}></div>
+      <div className="fixed top-0 left-0 w-full h-screen bg-cover bg-center -z-20" style={{ backgroundImage: "url('https://iili.io/Frvxln9.png')" }}></div>
       <div className="fixed top-0 left-0 w-full h-screen bg-white/20 backdrop-blur-xl -z-10"></div>
 
       <div className="h-screen overflow-y-auto">
