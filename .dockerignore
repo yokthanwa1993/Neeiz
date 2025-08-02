@@ -13,17 +13,18 @@ coverage
 .cache
 .parcel-cache
 
+# Exclude Capacitor native folders
+apps/mobile/ios
+apps/mobile/android
+
 # Keep only essential files
 !apps/*/src
 !apps/*/package.json
 !apps/*/tsconfig.json
-!apps/*/next.config.ts
+!apps/*/next.config.js
 !apps/*/public
-!apps/*/nginx.conf
 !package.json
 !pnpm-workspace.yaml
 !pnpm-lock.yaml
 !tsconfig.base.json
 !packages
-!nginx-mobile.conf
-!start.sh
